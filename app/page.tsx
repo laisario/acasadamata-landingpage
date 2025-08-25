@@ -117,12 +117,11 @@ export default function ACasaDaMata() {
           <aside className="relative text-center">
             <figure className="relative w-full max-w-[420px] h-[750px] md:max-w-[360px] md:h-[640px] lg:max-w-[480px] lg:h-[853px] rounded-2xl overflow-hidden shadow-2xl mx-auto">
               <img
-                src={images[currentImage] || "/placeholder.svg"}
+                src={images[currentImage]}
                 alt="Galeria de fotos da Casa da Mata"
                 className="w-full h-full object-cover transition-all duration-700 ease-in-out"
               />
 
-              {/* Botões de navegação */}
               <button
                 onClick={prevImage}
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-foreground p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
@@ -158,6 +157,6 @@ export default function ACasaDaMata() {
           </aside>
         </section>
       </div>
-</main>
+    </main>
   )
 }
