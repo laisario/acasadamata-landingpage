@@ -66,6 +66,9 @@ export default function ACasaDaMata() {
                 </p>
 
                 <p className="font-sans text-base text-muted-foreground leading-relaxed">
+                  Por Mônica Rio Verde
+                </p>
+                <p className="font-sans text-base text-muted-foreground leading-relaxed">
                   Site em construção. Em breve novidades!
                 </p>
               </div>
@@ -111,7 +114,7 @@ export default function ACasaDaMata() {
             </div>
           </article>
 
-          <aside className="relative">
+          <aside className="relative text-center">
             <figure className="relative w-full max-w-[420px] h-[750px] md:max-w-[360px] md:h-[640px] lg:max-w-[480px] lg:h-[853px] rounded-2xl overflow-hidden shadow-2xl mx-auto">
               <img
                 src={images[currentImage] || "/placeholder.svg"}
@@ -151,6 +154,7 @@ export default function ACasaDaMata() {
                 ))}
               </div>
             </figure>
+            <span className="text-xs text-[#b5b5b5]">Fotos ilustrativas</span>
           </aside>
         </section>
       </div>
