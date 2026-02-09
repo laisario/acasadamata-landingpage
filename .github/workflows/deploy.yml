@@ -27,14 +27,22 @@ jobs:
       - name: Build Next.js
         run: npm run build
 
-      - name: Deploy via FTP
+      - name: Debug - List build output
+        run: |
+          echo "Build output contents:"
+          ls -la out/ || echo "out/ directory not found!"
+          echo "Total files:"
+          find out -type f | wc -l
+
+      - name: Deploy via FTP (try relative path)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./out/
-          server-dir: /www/
+          server-dir: www/
           log-level: verbose
           dry-run: false
           dangerous-clean-slate: true
+          ftp-sync-allow: true
