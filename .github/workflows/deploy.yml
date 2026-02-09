@@ -34,20 +34,16 @@ jobs:
           echo "Total files:"
           find out -type f | wc -l
 
-      - name: Test FTP connection
-        run: |
-          curl -v -u "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" \
-            "ftp://${{ secrets.FTP_HOST }}/" \
-            --ftp-list-only || true
-
-      - name: Deploy via FTP (try relative path)
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./out/
-          server-dir: www/
+          server-dir: ./
           log-level: verbose
           dry-run: false
           dangerous-clean-slate: true
+          exclude-state: false
+          state-name: .ftp-deploy-sync-state.json
