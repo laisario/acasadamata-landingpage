@@ -40,6 +40,6 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./out/
-          server-dir: /home/acasadamata/
+          server-dir: ./www/
           log-level: verbose
           dry-run: false
