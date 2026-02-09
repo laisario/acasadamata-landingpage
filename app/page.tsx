@@ -1,37 +1,96 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Instagram, MessageCircle } from "lucide-react"
 
-const images = [
-  "/pictures/1.jpg",
-  "/pictures/2.jpg",
-  "/pictures/3.jpg",
-  "/pictures/4.jpg",
-  "/pictures/5.jpg",
-  "/pictures/6.jpg",
-  "/pictures/7.jpg",
+const content = [
+  "/pictures/1.jpeg",
+  "/pictures/2.jpeg",
+  "/pictures/3.jpeg",
+  "/pictures/4.jpeg",
+  "/pictures/5.jpeg",
+  "/pictures/6.jpeg",
+  "/pictures/7.jpeg",
+  "/videos/buffet.mp4"
 ]
 
 export default function ACasaDaMata() {
   const [currentImage, setCurrentImage] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false)
+  const [isVideoUnmuted, setIsVideoUnmuted] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const isVideo = (path: string) => path.endsWith('.mp4') || path.endsWith('.webm') || path.endsWith('.mov')
 
   useEffect(() => {
     setIsVisible(true)
     const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % images.length)
+      if (!isAutoplayPaused) {
+        setCurrentImage((prev) => (prev + 1) % content.length)
+      }
     }, 4000)
     return () => clearInterval(interval)
-  }, [])
+  }, [isAutoplayPaused])
+
+  useEffect(() => {
+    if (videoRef.current) {
+      const currentContent = content[currentImage]
+      if (isVideo(currentContent)) {
+        videoRef.current.muted = !isVideoUnmuted
+        videoRef.current.play().catch(() => {
+          // Ignora erros de autoplay
+        })
+      } else {
+        videoRef.current.pause()
+        // Resetar estados quando mudar para uma imagem
+        setIsAutoplayPaused(false)
+        setIsVideoUnmuted(false)
+      }
+    } else {
+      // Se não há vídeo renderizado, resetar estados
+      setIsAutoplayPaused(false)
+      setIsVideoUnmuted(false)
+    }
+  }, [currentImage, isVideoUnmuted])
+
+  const handleVideoClick = (e: React.MouseEvent<HTMLVideoElement>) => {
+    // Só processa o clique se os controles ainda não estiverem ativos
+    // Quando os controles estão ativos, deixa os controles nativos funcionarem
+    if (!isVideoUnmuted && videoRef.current) {
+      // Verifica se o clique foi na área do vídeo (não nos controles)
+      const target = e.target as HTMLVideoElement
+      const rect = target.getBoundingClientRect()
+      const clickY = e.clientY - rect.top
+      const videoHeight = rect.height
+      // Controles geralmente ficam na parte inferior (últimos 15% do vídeo)
+      const isClickOnControls = clickY > videoHeight * 0.85
+      
+      if (!isClickOnControls) {
+        setIsVideoUnmuted(true)
+        setIsAutoplayPaused(true)
+        videoRef.current.muted = false
+      }
+    }
+  }
 
   const nextImage = () => {
-    setCurrentImage((prev) => (prev + 1) % images.length)
+    setIsAutoplayPaused(false)
+    setIsVideoUnmuted(false)
+    setCurrentImage((prev) => (prev + 1) % content.length)
   }
 
   const prevImage = () => {
-    setCurrentImage((prev) => (prev - 1 + images.length) % images.length)
+    setIsAutoplayPaused(false)
+    setIsVideoUnmuted(false)
+    setCurrentImage((prev) => (prev - 1 + content.length) % content.length)
+  }
+
+  const handleDotClick = (index: number) => {
+    setIsAutoplayPaused(false)
+    setIsVideoUnmuted(false)
+    setCurrentImage(index)
   }
 
   return (
@@ -116,16 +175,31 @@ export default function ACasaDaMata() {
 
           <aside className="relative text-center">
             <figure className="relative w-full max-w-[420px] h-[750px] md:max-w-[360px] md:h-[640px] lg:max-w-[480px] lg:h-[853px] rounded-2xl overflow-hidden shadow-2xl mx-auto">
-              <img
-                src={images[currentImage]}
-                alt="Galeria de fotos da Casa da Mata"
-                className="w-full h-full object-cover transition-all duration-700 ease-in-out"
-              />
+              {isVideo(content[currentImage]) ? (
+                <video
+                  ref={videoRef}
+                  src={content[currentImage]}
+                  className={`w-full h-full object-cover transition-all duration-700 ease-in-out ${
+                    !isVideoUnmuted ? "cursor-pointer" : ""
+                  }`}
+                  loop
+                  muted={!isVideoUnmuted}
+                  playsInline
+                  controls={isVideoUnmuted}
+                  onClick={handleVideoClick}
+                />
+              ) : (
+                <img
+                  src={content[currentImage]}
+                  alt="Galeria de fotos da Casa da Mata"
+                  className="w-full h-full object-cover transition-all duration-700 ease-in-out"
+                />
+              )}
 
               <button
                 onClick={prevImage}
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-foreground p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
-                aria-label="Imagem anterior"
+                aria-label="Item anterior"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -133,27 +207,26 @@ export default function ACasaDaMata() {
               <button
                 onClick={nextImage}
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-foreground p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
-                aria-label="Próxima imagem"
+                aria-label="Próximo item"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
 
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, index) => (
+                {content.map((item, index) => (
                   <button
                     key={index}
-                    onClick={() => setCurrentImage(index)}
+                    onClick={() => handleDotClick(index)}
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
                       index === currentImage
                         ? "bg-white shadow-lg"
                         : "bg-white/50 hover:bg-white/75"
                     }`}
-                    aria-label={`Ir para imagem ${index + 1}`}
+                    aria-label={`Ir para ${isVideo(item) ? 'vídeo' : 'imagem'} ${index + 1}`}
                   />
                 ))}
               </div>
             </figure>
-            <span className="text-xs text-[#b5b5b5]">Fotos ilustrativas</span>
           </aside>
         </section>
       </div>
