@@ -35,7 +35,7 @@ jobs:
 
       - name: Clean old _next folder via FTP
         run: |
-          lftp -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }} <<EOF
+          ftp -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }} <<EOF
           cd /www/
           rm -rf _next
           quit
