@@ -27,20 +27,6 @@ jobs:
       - name: Build Next.js
         run: npm run build
 
-      - name: Debug - List build output
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Build output contents:"
-          ls -la out/ || echo "out/ directory not found!"
-
-      - name: Clean old _next folder via FTP
-        run: |
-          ftp -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }} <<EOF
-          cd /www/
-          rm -rf _next
-          quit
-          EOF
-
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -51,5 +37,4 @@ jobs:
           server-dir: /www/
           log-level: verbose
           dry-run: false
-          state-name: .ftp-deploy-sync-state.json
-          exclude-state: false
+          dangerous-clean-slate: true
