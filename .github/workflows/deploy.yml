@@ -27,29 +27,6 @@ jobs:
       - name: Build Next.js
         run: npm run build
 
-      - name: Debug - List build output
-        run: |
-          echo "Build output contents:"
-          ls -la out/ || echo "out/ directory not found!"
-          echo "Total files:"
-          find out -type f | wc -l
-
-      - name: FTP diagnostics (write test)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lftp
-          lftp -e "
-            set ftp:ssl-force yes;
-            set ftp:ssl-protect-data yes;
-            set ssl:verify-certificate no;
-            open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-            pwd;
-            ls -la;
-            mkdir __gha_write_test__;
-            rmdir __gha_write_test__;
-            bye
-          "
-
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
